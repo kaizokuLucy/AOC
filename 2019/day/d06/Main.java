@@ -48,6 +48,7 @@ public class Main {
 
 			List<Planet> pathSAN = new ArrayList<>();
 			getPathToCenter(sanOrbit, pathSAN);
+			
 
 			List<Planet> crossPath = new ArrayList<>(pathYOU);
 			crossPath.retainAll(pathSAN);
