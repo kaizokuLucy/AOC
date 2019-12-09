@@ -2,13 +2,18 @@ package day.d07;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.sound.midi.Soundbank;
+import java.util.Queue;
 
 public class Amplifier {
 
+	public enum State {
+		RUNNING, PAUSED, STOPPED;
+	}
+
+	private State state = State.RUNNING;
 	private List<Integer> instructions;
 	private int result;
+	private int index = 0;
 
 	public Amplifier(List<Integer> instructions) {
 		this.instructions = instructions;
@@ -18,7 +23,8 @@ public class Amplifier {
 		instructions.set(instructions.get(index + 1), input);
 	}
 
-	void print(final List<Integer> instructions, int index) {
+	private void print(final List<Integer> instructions, int index) {
+		state = State.PAUSED;
 		int a = instructions.get(index + 1);
 		a = (instructions.get(index) % 1000) / 100 == 0 ? instructions.get(a) : a;
 		result = a;
@@ -80,13 +86,15 @@ public class Amplifier {
 		return args;
 	}
 
-	void runProgram(int[] data) {
-		for (int index = 0, i = 0, step = 0; instructions.get(index) != 99; index += step) {
+	void runProgram(Queue<Integer> data) {
+		if(state == State.PAUSED) {
+			state = State.RUNNING;
+		}
+		for (int step = 0; state == State.RUNNING; index += step) {
 			step = 0;
 			int ins = instructions.get(index);
 			System.out.println(ins);
-
-			switch (ins % 10) {
+			switch (ins % 100) {
 			case 1:
 				add(instructions, index);
 				step = 4;
@@ -96,13 +104,12 @@ public class Amplifier {
 				step = 4;
 				break;
 			case 3:
-				store(instructions, index, data[i++]);
+				store(instructions, index, data.poll());
 				step = 2;
 				break;
 			case 4:
 				print(instructions, index);
 				step = 2;
-				System.out.println("res: " + result);
 				break;
 			case 5:
 				index = jumpIfTrue(instructions, index);
@@ -118,12 +125,23 @@ public class Amplifier {
 				equals(instructions, index);
 				step = 4;
 				break;
+			case 99:
+				System.out.println("KRAAAAAAAAAAAAAAAAJ");
+				state = State.STOPPED;
+				break;
 			}
-			System.out.println(instructions);
 		}
 	}
 
 	public int getResult() {
 		return result;
+	}
+
+	public State getState() {
+		return state;
+	}
+	
+	public List<Integer> getInstructions() {
+		return instructions;
 	}
 }

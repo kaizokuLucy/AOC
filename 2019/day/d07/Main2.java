@@ -4,9 +4,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 import java.util.Scanner;
 import java.util.stream.Collectors;
+
+import day.d07.Amplifier.State;
 
 public class Main2 {
 	public static void main(String[] args) {
@@ -19,23 +23,38 @@ public class Main2 {
 
 			List<Integer> instructions = Arrays.asList(input.split(",")).stream().map(Integer::parseInt)
 					.collect(Collectors.toList());
-			Amplifier amp = new Amplifier(instructions);
 
-			int[] comb = {5, 6, 7, 8, 9};
+			int[] comb = { 9, 8, 7, 6, 5 };
 			List<int[]> combinations = new ArrayList<>();
 			permute(comb, 0, combinations);
 
 			List<Integer> amplifiedValues = new ArrayList<>();
 
 			for (int i = 0; i < combinations.size(); i++) {
-				int[] data = new int[2];
-				data[1] = 0;
+				Queue<Integer> data = new LinkedList<Integer>();
+				data.add(9);
+				data.add(0);
+				List<Amplifier> ampList = new ArrayList<>();
 				for (int j = 0; j < 5; j++) {
-					data[0] = 9;//combinations.get(i)[j];
-					amp.runProgram(data);
-					data[1] = amp.getResult();
+					// combinations.get(i)[j];
+					Amplifier amp = new Amplifier(instructions);
+					ampList.add(amp);
 				}
-				amplifiedValues.add(data[1]);
+				boolean first = true;
+				int tmp = 0;
+				while (ampList.get(4).getState() != State.STOPPED) {
+					for (int j = 0; j < 5; j++) {
+						ampList.get(j).runProgram(data);
+						if (first && j != 4) {
+							data.add(comb[j + 1]);
+						}
+						data.add(ampList.get(j).getResult());
+						System.out.println(ampList.get(j).getInstructions());
+					}
+					first = false;
+				}
+				amplifiedValues.add(data.peek());
+				break;
 			}
 
 			System.out.println(amplifiedValues.stream().reduce(Integer::max).get());
