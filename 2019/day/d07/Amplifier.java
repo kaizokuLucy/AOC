@@ -93,7 +93,6 @@ public class Amplifier {
 		for (int step = 0; state == State.RUNNING; index += step) {
 			step = 0;
 			int ins = instructions.get(index);
-			System.out.println(ins);
 			switch (ins % 100) {
 			case 1:
 				add(instructions, index);
@@ -126,7 +125,6 @@ public class Amplifier {
 				step = 4;
 				break;
 			case 99:
-				System.out.println("KRAAAAAAAAAAAAAAAAJ");
 				state = State.STOPPED;
 				break;
 			}

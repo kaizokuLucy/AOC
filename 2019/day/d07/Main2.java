@@ -24,37 +24,45 @@ public class Main2 {
 			List<Integer> instructions = Arrays.asList(input.split(",")).stream().map(Integer::parseInt)
 					.collect(Collectors.toList());
 
+			// PART ONE phases
+			// int[] comb = { 9, 8, 7, 6, 5 };
+
+			// PART TWO phases
 			int[] comb = { 9, 8, 7, 6, 5 };
 			List<int[]> combinations = new ArrayList<>();
 			permute(comb, 0, combinations);
 
 			List<Integer> amplifiedValues = new ArrayList<>();
 
-			for (int i = 0; i < combinations.size(); i++) {
-				Queue<Integer> data = new LinkedList<Integer>();
-				data.add(9);
-				data.add(0);
+			for (int[] combination : combinations) {
+
 				List<Amplifier> ampList = new ArrayList<>();
 				for (int j = 0; j < 5; j++) {
-					// combinations.get(i)[j];
-					Amplifier amp = new Amplifier(instructions);
+					// create copyList so every amplifier has its own instruction list
+					// and not a reference to just one list
+					List<Integer> copyInstructionList = new ArrayList<>(instructions);
+					Amplifier amp = new Amplifier(copyInstructionList);
 					ampList.add(amp);
 				}
-				boolean first = true;
-				int tmp = 0;
+
+				int inputValue = 0;
+				Queue<Integer> data = new LinkedList<Integer>();
+
+				boolean firstIteration = true;
 				while (ampList.get(4).getState() != State.STOPPED) {
 					for (int j = 0; j < 5; j++) {
-						ampList.get(j).runProgram(data);
-						if (first && j != 4) {
-							data.add(comb[j + 1]);
+
+						if (firstIteration) {
+							// phase
+							data.add(combination[j]);
 						}
-						data.add(ampList.get(j).getResult());
-						System.out.println(ampList.get(j).getInstructions());
+						data.add(inputValue);
+						ampList.get(j).runProgram(data);
+						inputValue = ampList.get(j).getResult();
 					}
-					first = false;
+					firstIteration = false;
 				}
-				amplifiedValues.add(data.peek());
-				break;
+				amplifiedValues.add(inputValue);
 			}
 
 			System.out.println(amplifiedValues.stream().reduce(Integer::max).get());
