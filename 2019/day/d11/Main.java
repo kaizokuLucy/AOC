@@ -4,11 +4,13 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import day.d10.Point;
@@ -17,6 +19,19 @@ public class Main {
 
 	public enum Direction {
 		UP, DOWN, LEFT, RIGHT;
+	}
+
+	static Direction direction = Direction.UP;
+
+	public static Map<Direction, Direction[]> directionMap;
+	// can be replaces with initialization in main methon
+	static {
+		directionMap = new HashMap<>();
+
+		directionMap.put(Direction.UP, new Direction[] { Direction.LEFT, Direction.RIGHT });
+		directionMap.put(Direction.LEFT, new Direction[] { Direction.DOWN, Direction.UP });
+		directionMap.put(Direction.DOWN, new Direction[] { Direction.RIGHT, Direction.LEFT });
+		directionMap.put(Direction.RIGHT, new Direction[] { Direction.UP, Direction.DOWN });
 	}
 
 	public static void main(String[] args) {
@@ -30,7 +45,6 @@ public class Main {
 			List<Long> instructions = Arrays.asList(input.split(",")).stream().map(Long::parseLong)
 					.collect(Collectors.toList());
 
-			Direction direction = Direction.UP;
 			FakingIncode fkin = new FakingIncode(instructions, scInput);
 
 			Map<Point, Integer> ship = new HashMap<>();
@@ -39,38 +53,57 @@ public class Main {
 			ship.put(current, 0);
 
 			Queue<Integer> data = new LinkedList<Integer>();
-			data.add(0);
+
+			Set<Point> unique = new HashSet<>();
+
+			// send first input into intcode (black color)
+			data.add(1);
 			while (!fkin.isStopped()) {
+				// color output
 				fkin.runProgram(data);
-				int color = (int) fkin.getResult();
+				int newColor = (int) fkin.getResult();
+				if (newColor != ship.get(current)) {
+					// memorize the point whose color has to change
+					ship.put(current, newColor);
+					unique.add(new Point(current.getX(), current.getY()));
+				}
+
+				// direction output
 				fkin.runProgram(data);
 				int nextMove = (int) fkin.getResult();
-
-				ship.put(current, color);
-				data.add(moveRobot(direction, nextMove, ship, current));
+				int d = moveRobot(direction, nextMove, ship, current);
+				data.add(d);
 			}
-			
-			System.out.println(ship.values().stream().filter(v -> v == 1).count());
+
+			System.out.println("broj: " + unique.size());
+
+			viewShipRegistration(ship);
+
 		} catch (FileNotFoundException e) {
 			System.out.println("file no existy");
 		}
 	}
 
-	private static Integer moveRobot(Direction direction, int nextMove, Map<Point, Integer> ship, Point current) {
-		
-		Direction newDirection;
-		
-		// TODO check one line initialization and directionMap global variable
-		Map<Direction, Direction[]> directionMap = new HashMap<>();
+	private static void viewShipRegistration(Map<Point, Integer> ship) {
 
-		directionMap.put(Direction.UP, new Direction[] { Direction.LEFT, Direction.RIGHT });
-		directionMap.put(Direction.LEFT, new Direction[] { Direction.DOWN, Direction.UP });
-		directionMap.put(Direction.DOWN, new Direction[] { Direction.RIGHT, Direction.LEFT });
-		directionMap.put(Direction.RIGHT, new Direction[] { Direction.UP, Direction.DOWN });
+		int minX = ship.keySet().stream().mapToInt(Point::getX).min().getAsInt();
+		int minY = ship.keySet().stream().mapToInt(Point::getY).min().getAsInt();
+		int maxX = ship.keySet().stream().mapToInt(Point::getX).max().getAsInt();
+		int maxY = ship.keySet().stream().mapToInt(Point::getY).max().getAsInt();
 
-		newDirection = directionMap.get(direction)[nextMove];
+		for (int y = maxY; y >= minY; y--) {
+			for (int x = minX; x <= maxX; x++) {
+				System.out.print(ship.getOrDefault(new Point(x, y), 0) == 1 ? "#" : " ");
+			}
+			System.out.println();
+		}
 
-		switch (newDirection) {
+	}
+
+	private static Integer moveRobot(Direction d, int nextMove, Map<Point, Integer> ship, Point current) {
+
+		direction = directionMap.get(d)[nextMove];
+		switch (direction) {
 		case LEFT:
 			current.setX(current.getX() - 1);
 			break;
@@ -84,6 +117,8 @@ public class Main {
 			current.setY(current.getY() + 1);
 			break;
 		}
-		return ship.get(current);
+
+		// if key exists returns its value, else returns the value of the function
+		return ship.computeIfAbsent(new Point(current.getX(), current.getY()), v -> 0);
 	}
 }
