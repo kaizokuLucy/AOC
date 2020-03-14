@@ -5,12 +5,14 @@ import java.util.List;
 import java.util.Queue;
 import java.util.Scanner;
 
-public class FakingIncode {
+public class Intcode {
 
 	public enum State {
 		RUNNING, PAUSED, STOPPED;
 	}
 
+	private boolean shouldPrint = true;
+	
 	private int relativeBase = 0;
 
 	private State state = State.RUNNING;
@@ -20,12 +22,21 @@ public class FakingIncode {
 
 	Scanner sc;
 
-	public FakingIncode(List<Long> instructions, Scanner sc) {
+	public Intcode(List<Long> instructions, Scanner sc) {
 		this.sc = sc;
 		this.instructions = instructions;
 		for (int i = 0; i < 1000; i++) {
 			instructions.add(0l);
 		}
+	}
+	
+	public Intcode(List<Long> instructions, Scanner sc, boolean shouldPrint) {
+		this.sc = sc;
+		this.instructions = instructions;
+		for (int i = 0; i < 1000; i++) {
+			instructions.add(0l);
+		}
+		this.shouldPrint = shouldPrint;
 	}
 
 	private void store(final List<Long> instructions, int index, Queue<Integer> data) {
@@ -48,7 +59,9 @@ public class FakingIncode {
 		state = State.PAUSED;
 		int mode = getHundreds(instructions.get(index).intValue());
 		long arg = getArgument(instructions, mode, instructions.get(index + 1));
-		System.out.println(arg);
+		if (shouldPrint) {
+			System.out.println(arg);
+		}
 		result = arg;
 	}
 

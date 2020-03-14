@@ -45,7 +45,7 @@ public class Main {
 			List<Long> instructions = Arrays.asList(input.split(",")).stream().map(Long::parseLong)
 					.collect(Collectors.toList());
 
-			FakingIncode fkin = new FakingIncode(instructions, scInput);
+			Intcode intcode = new Intcode(instructions, scInput);
 
 			Map<Point, Integer> ship = new HashMap<>();
 			// false = black, true = white
@@ -58,10 +58,10 @@ public class Main {
 
 			// send first input into intcode (black color)
 			data.add(1);
-			while (!fkin.isStopped()) {
+			while (!intcode.isStopped()) {
 				// color output
-				fkin.runProgram(data);
-				int newColor = (int) fkin.getResult();
+				intcode.runProgram(data);
+				int newColor = (int) intcode.getResult();
 				if (newColor != ship.get(current)) {
 					// memorize the point whose color has to change
 					ship.put(current, newColor);
@@ -69,8 +69,8 @@ public class Main {
 				}
 
 				// direction output
-				fkin.runProgram(data);
-				int nextMove = (int) fkin.getResult();
+				intcode.runProgram(data);
+				int nextMove = (int) intcode.getResult();
 				int d = moveRobot(direction, nextMove, ship, current);
 				data.add(d);
 			}
