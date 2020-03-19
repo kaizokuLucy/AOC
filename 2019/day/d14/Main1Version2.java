@@ -19,7 +19,7 @@ public class Main1Version2 {
 
 	public static void main(String[] args) {
 
-		File file = new File("2019/day/d14/input1.txt");
+		File file = new File("2019/day/d14/input.txt");
 
 		try (Scanner sc = new Scanner(file)) {
 
@@ -37,112 +37,74 @@ public class Main1Version2 {
 						.map(c -> new Chemical(c.split(" "))).collect(Collectors.toList()), output));
 
 			}
-			for (Recipe r : recipes) {
-				System.out.println(r.toString());
-			}
-			Set<String> filteredChemicals = new HashSet<>();
-//			filter(chemicalReactions, outputChemicals, filteredChemicals);
-//			System.out.println("rez: " + group(chemicalReactions, outputChemicals, filteredChemicals));
+
+			System.out.println(getNumfORE(recipes));
 //
 		} catch (FileNotFoundException e) {
 			System.out.println("file no existy");
 		}
 	}
 
-	private static int group(Map<Chemical, List<Chemical>> chemicalReactions, Map<String, Integer> outputChemicals,
-			Set<String> filteredChemicals) {
+	private static int getNumfORE(List<Recipe> recipes) {
+		int numOfORE = 0;
+		for (Entry<String, Integer> e : filter(recipes).entrySet()) {
+			Recipe r = findRecipe(recipes, e.getKey());
+			numOfORE += Math.ceil((double) e.getValue()/r.result.getAmount()) * r.ingredients.get(0).getAmount();
+		}
+		return numOfORE;
+	}
 
-		Map<String, Integer> necessaryChemical = new HashMap<>();
-//		Map<String, Integer> storage = new HashMap<>();
+	private static Map<String, Integer> filter(List<Recipe> recipes) {
 
-		Queue<Chemical> productionQueue = new LinkedList<Chemical>();
-		productionQueue.add(new Chemical("FUEL", 1));
+		Map<String, Integer> necessaryIngredients = new HashMap<>();
+		Map<String, Integer> storage = new HashMap<>();
+		Queue<Recipe> productionQueue = new LinkedList<>();
+
+		productionQueue.add(findRecipe(recipes, "FUEL"));
 
 		while (!productionQueue.isEmpty()) {
-			printNecessaryChemicals(necessaryChemical);
 
-			Chemical currentlyPreparing = productionQueue.poll();
-			System.out.println("Current: " + currentlyPreparing);
+			Recipe currentRecipe = productionQueue.poll();
+			String currentResultName = currentRecipe.result.getName();
+			Integer currentResultAmount = currentRecipe.result.getAmount();
 
-			for (Chemical chemical : chemicalReactions.get(currentlyPreparing)) {
+			if (currentRecipe.ingredients.get(0).getName().equals("ORE")) {
+				necessaryIngredients.put(currentResultName,
+						necessaryIngredients.getOrDefault(currentResultName, 0) + currentResultAmount);
+			} else {
 
-//				if (storage.containsKey(chemical.getName())) {
-//					if (storage.get(chemical.getName()) >= chemical.getAmount()) {
-//						storage.put(chemical.getName(), storage.get(chemical.getName()) - chemical.getAmount());
-//						continue;
-//					}
-//				}
-//				
-				System.out.println("chemical: " + chemical);
+				for (Chemical chemical : currentRecipe.ingredients) {
+					int needed = chemical.getAmount();
+					String chemicalName = chemical.getName();
+					if (storage.containsKey(chemicalName)) {
+						int storedValue = storage.get(chemicalName);
+						if (storedValue >= needed) {
+							storage.put(chemicalName, storedValue - needed);
+							continue;
+						} else {
+							needed -= storedValue;
+							storage.put(chemicalName, 0);
+						}
+					}
 
-				String ingredient = chemical.getName();
+					Recipe recipe = findRecipe(recipes, chemicalName);
+					while (needed > 0) {
+						if (needed < recipe.result.getAmount()) {
+							storage.put(chemicalName,
+									storage.getOrDefault(chemicalName, 0) + recipe.result.getAmount() - needed);
+						}
 
-				if (filteredChemicals.contains(ingredient)) {
+						productionQueue.add(recipe);
+						needed -= recipe.result.getAmount();
+					}
 
-					necessaryChemical.put(ingredient, necessaryChemical.getOrDefault(ingredient, 0)
-							+ currentlyPreparing.getAmount() * chemical.getAmount());
-				} else {
-					productionQueue.add(chemical);
 				}
 			}
 		}
-
-		return calculateORE(necessaryChemical, chemicalReactions, outputChemicals);
-
+		return necessaryIngredients;
 	}
 
-	private static void filter(Map<Chemical, List<Chemical>> chemicalReactions, Map<String, Integer> outputChemicals,
-			Set<String> filteredChemicals) {
-
-		Queue<Chemical> productionQueue = new LinkedList<Chemical>();
-		productionQueue.add(new Chemical("FUEL", 1));
-
-		while (!productionQueue.isEmpty()) {
-			Chemical currentlyPreparing = productionQueue.poll();
-
-			for (Chemical chemical : chemicalReactions.get(currentlyPreparing)) {
-				if (chemical.getName().equals("ORE")) {
-					filteredChemicals.add(currentlyPreparing.getName());
-				} else {
-					productionQueue.add(chemical);
-				}
-			}
-		}
-	}
-
-	private static int calculateORE(Map<String, Integer> necessaryChemical,
-			Map<Chemical, List<Chemical>> chemicalReactions, Map<String, Integer> outputChemicals) {
-		System.out.println("***************");
-		int oreNum = 0;
-		for (Entry<String, Integer> ingredient : necessaryChemical.entrySet()) {
-			System.out.println(ingredient);
-//			System.out.println("brojnik: " + ingredient.getValue()); 
-//			System.out.println("nazivnik: " + outputChemicals.get(ingredient.getKey()));
-//			System.out.println("prva zagrada: " + Math.ceil(ingredient.getValue() / outputChemicals.get(ingredient.getKey())));
-//			System.out.println("mnozitelj: "+ chemicalReactions.get(new Chemical(ingredient.getKey(), 0)).get(0).getAmount());
-			double num = Math.ceil((double) ingredient.getValue() / outputChemicals.get(ingredient.getKey()))
-					* chemicalReactions.get(new Chemical(ingredient.getKey(), 0)).get(0).getAmount();
-			System.out.println("dodajem: " + num);
-			oreNum += (int) num;
-
-		}
-
-		return oreNum;
-	}
-
-	private static void printStorage(Map<String, Integer> storage) {
-		System.out.println("STORAGE:");
-		for (Entry<String, Integer> e : storage.entrySet()) {
-			System.out.println(e.getKey() + " -------- " + e.getValue());
-		}
-	}
-
-	private static void printNecessaryChemicals(Map<String, Integer> necessaryChemical) {
-		System.out.println("*************************************");
-		System.out.println("Necessary Chemicals:");
-		for (Entry<String, Integer> e : necessaryChemical.entrySet()) {
-			System.out.println(e.getKey() + " -------- " + e.getValue());
-		}
-		System.out.println("*************************************");
+	private static Recipe findRecipe(List<Recipe> recipes, String name) {
+		return recipes.stream().filter(r -> r.result.getName().equals(name)).collect(Collectors.toList()).get(0);
 	}
 }
