@@ -15,11 +15,6 @@ public class Chemical {
 		this.amount = amount;
 	}
 
-	public Chemical(Chemical chemical) {
-		this.name = chemical.getName();
-		this.amount = chemical.getAmount();
-	}
-
 	@Override
 	public int hashCode() {
 		final int prime = 31;
