@@ -7,7 +7,7 @@ import java.util.Scanner;
 
 public class Part1 {
 	public static void main(String[] args) {
-		try (Scanner sc = new Scanner(new File("2020\\AOC20_d01\\input.txt"))) {
+		try (Scanner sc = new Scanner(new File("D:\\Documents\\workspace\\gits\\AOC\\2020\\AOC20_d01\\input.txt"))) {
 			HashSet data = new HashSet<>();
 			while(sc.hasNext()) {
 				int i = Integer.parseInt(sc.nextLine());
@@ -21,6 +21,5 @@ public class Part1 {
 		} catch (FileNotFoundException e) {
 			e.printStackTrace();
 		}
-	
 	}
 }

@@ -12,7 +12,7 @@ public class Part2 {
 	 * @param args
 	 */
 	public static void main(String[] args) {
-		try (Scanner sc = new Scanner(new File("2020\\AOC20_d01\\input.txt"))) {
+		try (Scanner sc = new Scanner(new File("D:\\Documents\\workspace\\gits\\AOC\\2020\\AOC20_d01\\input.txt"))) {
 			Set<Integer> dataSet = new HashSet<>();
 			while(sc.hasNext()) {
 				dataSet.add(Integer.parseInt(sc.nextLine()));
