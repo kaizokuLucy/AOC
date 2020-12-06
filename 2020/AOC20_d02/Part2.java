@@ -30,5 +30,4 @@ public class Part2 {
 			e.printStackTrace();
 		}
 	}
-
 }
