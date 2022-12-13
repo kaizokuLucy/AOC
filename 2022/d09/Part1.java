@@ -11,7 +11,7 @@ import static d09.Point.calculateDistance;
 public class Part1 {
 
     public static void main(String[] args) {
-        try (Scanner sc = new Scanner(new File("D:\\Documents\\workspace\\gits\\AOC\\2022\\d09\\input.txt"))) {
+        try (Scanner sc = new Scanner(new File("d09/input.txt"))) {
             Set<Point> positions = new HashSet<>();
             Point head = new Point(0, 0);
             Point tail = new Point(0, 0);
