@@ -8,14 +8,6 @@ public class Part2 {
     private static final String NOOP = "noop";
     private static final String ADDX = "addx";
 
-    private static final List<Integer> checkInCycles = new ArrayList<>() {{
-        add(20);
-        add(60);
-        add(100);
-        add(140);
-        add(180);
-        add(220);
-    }};
     private static final Map<String, Integer> cycleLength = new HashMap<>() {{
         put(NOOP, 1);
         put(ADDX, 2);
