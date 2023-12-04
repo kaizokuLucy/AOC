@@ -2,12 +2,10 @@ package AOC20_d11;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
 
-public class Part1 {
+public class Part2 {
 	private static int WIDTH;
 	private static int HEIGHT;
 
@@ -60,29 +58,58 @@ public class Part1 {
 	}
 
 	private static boolean areOccupied(int row, int col, List<String> grid) {
-		List<Point> coordinates = getAdjacentCoordinates(row, col);
-		return coordinates.stream().filter(p -> grid.get(p.getY()).charAt(p.getX()) == '#').count() >= 4;
+		List<Point> coordinates = getAdjacentCoordinates(row, col, grid);
+		return coordinates.stream().filter(p -> grid.get(p.getY()).charAt(p.getX()) == '#').count() >= 5;
 	}
 
 	private static boolean areAllAdjacentEmpty(int row, int col, List<String> grid) {
-		List<Point> coordinates = getAdjacentCoordinates(row, col);
+		List<Point> coordinates = getAdjacentCoordinates(row, col, grid);
 		return coordinates.stream().allMatch(p -> grid.get(p.getY()).charAt(p.getX()) == 'L'
 				|| grid.get(p.getY()).charAt(p.getX()) == '.');
 	}
 
-	private static List<Point> getAdjacentCoordinates(int Y, int X) {
+	private static List<Point> getAdjacentCoordinates(int Y, int X, List<String> grid) {
 		List<Point> coordinates = new ArrayList<>();
-		coordinates.add(new Point(X - 1, Y));
-		coordinates.add(new Point(X + 1, Y));
-		coordinates.add(new Point(X, Y - 1));
-		coordinates.add(new Point(X, Y + 1));
-		coordinates.add(new Point(X - 1, Y - 1));
-		coordinates.add(new Point(X - 1, Y + 1));
-		coordinates.add(new Point(X + 1, Y + 1));
-		coordinates.add(new Point(X + 1, Y - 1));
+		List<Point> steps = Arrays.asList(
+				new Point(1, 0),
+				new Point(-1, 0),
+				new Point(0, 1),
+				new Point(0, -1),
+				new Point(1, 1),
+				new Point(-1, -1),
+				new Point(1, -1),
+				new Point(-1, 1));
 
-		return coordinates.stream().filter(
-				p -> p.getX() >= 0 && p.getY() >= 0
-						&& p.getX() < WIDTH && p.getY() < HEIGHT).collect(Collectors.toList());
+		Point current = new Point(X, Y);
+		for (Point step : steps) {
+			var seat = findSeat(current, step, grid);
+			if (seat.isPresent()) {
+				coordinates.add(seat.get());
+			}
+		}
+
+		return coordinates;
+	}
+
+	private static Optional<Point> findSeat(Point current, Point step, List<String> grid) {
+		Point nextPoint = addPoints(current, step);
+		while (isWithinBounds(nextPoint)) {
+			int row = nextPoint.getY();
+			int col = nextPoint.getX();
+			if (grid.get(row).charAt(col) != '.') {
+				return Optional.of(nextPoint);
+			}
+			nextPoint = addPoints(nextPoint, step);
+		}
+		return Optional.empty();
+	}
+
+	private static boolean isWithinBounds(Point nextPoint) {
+		return nextPoint.getX() < WIDTH && nextPoint.getY() < HEIGHT
+				&& nextPoint.getX() >= 0 && nextPoint.getY() >= 0;
+	}
+
+	private static Point addPoints(Point current, Point step) {
+		return new Point(current.getX() + step.getX(), current.getY() + step.getY());
 	}
 }

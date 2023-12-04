@@ -2,15 +2,12 @@ package d11;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.lang.reflect.Array;
 import java.math.BigInteger;
 import java.util.*;
-import java.util.function.IntBinaryOperator;
 import java.util.stream.Collectors;
 
-public class Part1 {
-    private static final int ROUNDS = 20;
-    private static final BigInteger DIVISOR = new BigInteger("3");
+public class Part2 {
+    private static final int ROUNDS = 1000;
 
     public static void main(String[] args) {
         try (Scanner sc = new Scanner(new File("2022\\d11\\input.txt"))) {
@@ -37,6 +34,7 @@ public class Part1 {
             int i = 0;
             BigInteger worryLevel;
             while (i < ROUNDS) {
+                System.out.println(i);
                 for (Monkey currentMonkey : monkeys) {
                     for (BigInteger item : currentMonkey.getStartingItems()) {
                         // calculate worry level
@@ -55,10 +53,10 @@ public class Part1 {
                         }
                         switch (currentMonkey.getOperation()) {
                             case "*":
-                                worryLevel = arg1.multiply(arg2).divide(DIVISOR);
+                                worryLevel = arg1.multiply(arg2);
                                 break;
                             case "+":
-                                worryLevel = arg1.add(arg2).divide(DIVISOR);
+                                worryLevel = arg1.add(arg2);
                                 break;
                             default:
                                 break;
@@ -69,8 +67,9 @@ public class Part1 {
                         } else {
                             monkeys.get(currentMonkey.getDivisorFalse()).getStartingItems().add(worryLevel);
                         }
-                        currentMonkey.setItemsChecked(currentMonkey.getItemsChecked() + 1);
                     }
+                    currentMonkey.setItemsChecked(currentMonkey.getItemsChecked()
+                            + currentMonkey.getStartingItems().size());
                     currentMonkey.getStartingItems().clear();
                 }
                 i++;

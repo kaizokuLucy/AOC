@@ -13,7 +13,7 @@ import java.util.Queue;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
-public class Main1Version2 {
+public class MainPart2 {
 
 	public static void main(String[] args) {
 
@@ -34,7 +34,15 @@ public class Main1Version2 {
 
 			}
 
-			System.out.println(getNumfORE(recipes));
+			int a = 0;
+			int ore = 0;
+			for (int i = 0; i < 10000; i++) {
+
+				a = getNumfORE(recipes);
+				System.out.println(a);
+				ore += a;
+				System.out.println(ore);
+			}
 
 		} catch (FileNotFoundException e) {
 			System.out.println("file no existy");
@@ -44,22 +52,23 @@ public class Main1Version2 {
 	private static int getNumfORE(List<Recipe> recipes) {
 		int numOfORE = 0;
 		for (Entry<String, Integer> e : filter(recipes).entrySet()) {
+			System.out.println(e.getKey() + " " + e.getValue());
 			Recipe r = findRecipe(recipes, e.getKey());
 			numOfORE += (double) e.getValue() / r.result.getAmount() * r.ingredients.get(0).getAmount();
 		}
 		return numOfORE;
 	}
 
+	static Map<String, Integer> storage = new HashMap<>();
 	private static Map<String, Integer> filter(List<Recipe> recipes) {
 
 		Map<String, Integer> necessaryIngredients = new HashMap<>();
-		Map<String, Integer> storage = new HashMap<>();
 		Queue<Recipe> productionQueue = new LinkedList<>();
 
 		productionQueue.add(findRecipe(recipes, "FUEL"));
 
 		while (!productionQueue.isEmpty()) {
-
+			
 			Recipe currentRecipe = productionQueue.poll();
 			String currentResultName = currentRecipe.result.getName();
 			Integer currentResultAmount = currentRecipe.result.getAmount();
@@ -95,6 +104,9 @@ public class Main1Version2 {
 					}
 
 				}
+			}
+			for (Entry<String, Integer> e : storage.entrySet()) {
+				System.out.println(e.getKey() + "-----" + e.getValue());
 			}
 		}
 
