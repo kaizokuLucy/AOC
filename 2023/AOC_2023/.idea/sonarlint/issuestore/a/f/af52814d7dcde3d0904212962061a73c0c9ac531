@@ -1,9 +1,0 @@
-
-`	java:S112*"FDefine and throw a dedicated exception instead of using a generic one.(Ò‚Òéüÿÿÿÿ
-2
-java:S1643"Use a StringBuilder instead.(Û×
-t	java:S120"ZRename this package name to match the regular expression '^[a-z_]+(\.[a-z_][a-z0-9_]*)*$'.(—Œ¿øÿÿÿÿ
-\
-java:S1075"ARefactor your code to get this URI from a customizable parameter.(ø§ØÍüÿÿÿÿ
-@	java:S106&"+Replace this use of System.out by a logger.(¾îÒæ
-@	java:S106("+Replace this use of System.out by a logger.(‚¨Ö§
