@@ -2,60 +2,37 @@ package day4;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
 public class Part1 {
     public static void main(String[] args) {
-        File input = new File("/home/lucy/Documents/workspace/gits/AOC/2023/AOC_2023/src/day3/input.txt");
+        File input = new File("/home/lucy/Documents/workspace/gits/AOC/2023/AOC_2023/src/day4/input.txt");
         try (Scanner scanner = new Scanner(input)) {
-            List<List<Character>> schematic = new ArrayList<>();
-            while(scanner.hasNextLine()) {
-                String line = scanner.nextLine();
-                schematic.add(line.chars().mapToObj(c -> (char) c).collect(Collectors.toList()));
-            }
-
             int sum = 0;
-            for (int i = 0; i < schematic.size(); i++) {
-                String num = "";
-                boolean isPartNumber = false;
-                for (int j = 0; j < schematic.get(i).size(); j++) {
-                    Character character = schematic.get(i).get(j);
-                    if (Character.isDigit(character)) {
-                        num += character;
-                        isPartNumber |= hasAdjacentSymbol(i, j, schematic);
-                    } else if (!Character.isDigit(character)
-                            || j == schematic.get(i).size()){
-                        if (isPartNumber) {
-                            sum += Integer.parseInt(num);
+            while(scanner.hasNextLine()) {
+                int point = 0;
+                String card = scanner.nextLine().replaceAll("Card\\s+\\d+:\\s+", "");
+                String[] cardNumbers = card.split(" \\| ");
+                List<Integer> winningNumbers = Arrays.stream(cardNumbers[0].trim().split("\\s+")).map(Integer::parseInt).collect(Collectors.toList());
+                List<Integer> playedNumbers = Arrays.stream(cardNumbers[1].trim().split("\\s+")).map(Integer::parseInt).collect(Collectors.toList());
+                for (Integer number : playedNumbers) {
+                    if (winningNumbers.contains(number)) {
+                        if (point == 0) {
+                            point = 1;
+                        } else {
+                            point *= 2;
                         }
-                        num = "";
-                        isPartNumber = false;
                     }
                 }
-                System.out.println(i + " " + sum);
+                sum += point;
             }
+
             System.out.println(sum);
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
         }
-
-    }
-
-    private static boolean hasAdjacentSymbol(int x, int y, List<List<Character>> schematic) {
-        for (int i = x - 1; i <= x + 1; i++) {
-            for (int j = y - 1; j <= y + 1; j++) {
-                if (i < 0 || i >= schematic.size() || j < 0 || j >= schematic.get(x).size()) {
-                    continue;
-                }
-                Character adjacentSymbol = schematic.get(i).get(j);
-                if (!Character.isDigit(adjacentSymbol) && adjacentSymbol != '.') {
-                    return true;
-                }
-            }
-        }
-        return  false;
     }
 }
